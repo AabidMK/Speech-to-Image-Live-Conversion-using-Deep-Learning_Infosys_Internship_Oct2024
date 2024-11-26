@@ -59,7 +59,7 @@ This is a Speech-to-Image application that allows users to transcribe speech int
 
 2. **Transcription:**
    - The backend uses the Whisper model to transcribe the recorded audio into text.
-   - The transcribed text is returned to the frontend.
+   - The transcribed text is sent for sentiment and toxicity (harsh and violence language) analysis.
 
 3. **Sentiment and Toxicity Analysis:**
    - Before generating the image, the text is analyzed for toxicity using the `flai` Toxicity Classifier.
