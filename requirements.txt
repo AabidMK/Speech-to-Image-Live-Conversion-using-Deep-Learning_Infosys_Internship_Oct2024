@@ -1,0 +1,4 @@
+streamlit
+speechrecognition
+openai
+Pillow
