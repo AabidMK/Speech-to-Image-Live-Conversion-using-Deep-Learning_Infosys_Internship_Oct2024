@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech to Image</title>
+  <style>
+    /* Color Palette */
+    :root {
+      --main-bg-color: #ffff;
+      --secondary-bg-color: #c8d8e4;
+      --text-color: #2b6777;
+      --container-bg-color: #c8d8e4;
+      --button-color:  #2b6777;
+    }
+  
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: var(--main-bg-color);
+      color: var(--text-color);
+      font-size: 1.5em; /* Increase base font size */
+    }
+  
+    h1 {
+      color: var(--text-color);
+      font-size: 3em; /* Increase font size of the heading */
+    }
+  
+    #recordButton {
+      padding: 20px; /* Increase padding to make button larger */
+      background-color: var(--button-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 30px; /* Increase font size of the icon */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+      margin-top: 30px; /* Increase margin to make space bigger */
+      width: 90px; /* Increase button size */
+      height: 90px;
+    }
+  
+    #recordButton:active {
+      background-color: #439e8a;
+    }
+  
+    #recordedText {
+      margin-top: 30px;
+      font-size: 1.2em; /* Increase font size of the recorded text */
+      width: 100%;
+      max-width: 700px; /* Increase max width */
+      background-color: var(--container-bg-color);
+      color: #52ab98;
+      padding: 25px; /* Increase padding */
+      border-radius: 10px;
+      border: 1px solid var(--secondary-bg-color);
+      text-align: center;
+    }
+  
+    #displayImage {
+      margin-top: 30px;
+      width: 350px; /* Increase image size */
+      height: auto;
+      border-radius: 10px;
+      display: none; /* Hidden by default */
+    }
+  
+    .icon {
+      font-size: 40px; /* Increase size of the icon */
+    }
+  </style>
+  
+</head>
+<body>
+
+  <h1>Speech to Image</h1>
+
+  <!-- Microphone Button -->
+  <button id="recordButton">
+    <span class="icon">🎤</span>
+  </button>
+
+  <!-- Transcribed Text -->
+  <div id="recordedText">Your speech will appear as text here.</div>
+
+  <!-- Display Image -->
+  <img id="displayImage" src="https://via.placeholder.com/300" alt="Display Image" />
+
+  <script>
+    const recordButton = document.getElementById("recordButton");
+    const recordedTextDiv = document.getElementById("recordedText");
+    const displayImage = document.getElementById("displayImage");
+    let isRecording = false;
+    let mediaRecorder;
+    let audioChunks = [];
+
+    // Start recording audio
+    function startRecording() {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = function(event) {
+          audioChunks.push(event.data);
+        };
+        mediaRecorder.onstop = function() {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+          sendAudioToBackend(audioBlob); // Send audio to backend
+        };
+        mediaRecorder.start();
+      });
+    }
+
+    // Stop recording audio
+    function stopRecording() {
+      mediaRecorder.stop();
+    }
+
+    // Send the audio file to the backend for transcription
+    function sendAudioToBackend(audioBlob) {
+      const formData = new FormData();
+      formData.append("file", audioBlob, "audio.wav");
+
+      fetch("/transcribe", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          recordedTextDiv.textContent = data.text || "No transcription available.";
+          sendPromptToBackend(data.text); // Send transcription text to Flask for image generation
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          recordedTextDiv.textContent = "Error during transcription.";
+        });
+    }
+
+    // Send the transcription text to backend for image generation
+    function sendPromptToBackend(prompt) {
+      fetch("/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      })
+        .then((response) => response.blob())
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          displayImage.src = url;
+          displayImage.style.display = "block"; // Show the generated image
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    // Recording button functionality
+    recordButton.addEventListener("click", () => {
+      if (!isRecording) {
+        startRecording();
+        isRecording = true;
+        recordButton.innerHTML = '<span class="icon">⏹️</span>'; // Stop icon
+      } else {
+        stopRecording();
+        isRecording = false;
+        recordButton.innerHTML = '<span class="icon">🎤</span>'; // Mic icon
+      }
+    });
+  </script>
+</body>
+</html>
