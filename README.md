@@ -1,5 +1,4 @@
-# Speech-to-Image-Live-Conversion-using-Deep-Learning_Infosys_Internship_Oct2024
-The objective of this project is to develop a deep learning model that can convert spoken descriptions into corresponding images in real-time.
+
 # Speech-to-Image-Live-Conversion-using-Deep-Learning_Infosys_Internship_Oct2024
 The objective of this project is to develop a deep learning model that can convert spoken descriptions into corresponding images in real-time.
 This is a Speech-to-Image application that allows users to transcribe speech into text and then generate an image based on that text using Stable Diffusion. The app also analyzes the transcription for toxicity before generating the image.
