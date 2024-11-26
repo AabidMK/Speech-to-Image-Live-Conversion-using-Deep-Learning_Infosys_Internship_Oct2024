@@ -1,8 +1,0 @@
-streamlit
-sounddevice
-torch
-transformers
-diffusers
-librosa
-scipy
-numpy
