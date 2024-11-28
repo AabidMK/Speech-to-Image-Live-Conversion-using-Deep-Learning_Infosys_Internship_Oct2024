@@ -6,3 +6,5 @@ diffusers
 librosa
 scipy
 numpy
+openai-whisper
+nltk
