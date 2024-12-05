@@ -10,7 +10,7 @@ from time import sleep
 
 # Paths to models
 WHISPER_MODEL_PATH = r"C:\Users\Sabarinathan S\Desktop\streamlit\Speech-to-Image-Live-Conversion-using-Deep-Learning_Infosys_Internship_Oct2024-main\Speech-to-Image-Live-Conversion-using-Deep-Learning_Infosys_Internship_Oct2024-main\models\Whisper_finetuned"
-SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
+SD_MODEL_ID = "CompVis/stable-diffusion-v1-4"
 
 # Device configuration
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
